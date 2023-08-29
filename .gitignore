@@ -1,0 +1,12 @@
+# Ignore directories from this project
+.terraform
+.ssh
+
+# Ignore files from this project
+*.tfstate
+*.tfstate.*
+*.plan
+*.tfvars
+*.tfvars.json
+.terraform.*
+
