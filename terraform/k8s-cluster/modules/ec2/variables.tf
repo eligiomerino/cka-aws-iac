@@ -16,26 +16,20 @@ variable "worker_node_name" {
   default     = "k8s machine"
 }
 
-variable "ec2_security_group_name" {
-  description = "EC2 Security Group name"
-  type        = string
-  default     = "k8s EC2 Security Group"
-}
-
-variable "ec2_security_group_description" {
-  description = "EC2 Security Group description"
-  type        = string
-  default     = "k8s EC2 Security Group"
-}
-
-variable "ec2_security_group_ingress_ports" {
-  description = "Allowed traffic in the EC2 instances"
+variable "control_plane_sg_ports" {
+  description = "Inboud Traffic in Control Plane"
   default = {
     "Kubernetes API server"   = "6443"
     "Kubelet API"             = "10250"
-    "Kube Scheduler"          = "10259"
-    "Kube Controller Manager" = "10257"
-    "SSH Traffic"             = "22"
+    "Kube Scheduler"          = "10251"
+    "Kube Controller Manager" = "10252"
+  }
+}
+
+variable "worker_node_sg_ports" {
+  description = "Inboud Traffic traffic in Worker Node"
+  default = {
+    "Kubelet API" = "10250"
   }
 }
 
@@ -59,6 +53,11 @@ variable "ec2_instance_count" {
 
 variable "vpc_id" {
   description = "VPC ID"
+  type        = string
+}
+
+variable "vpc_cidr_block" {
+  description = "VPC CIDR Block"
   type        = string
 }
 

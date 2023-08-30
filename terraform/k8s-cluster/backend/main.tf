@@ -35,6 +35,7 @@ module "ec2" {
   worker_node_name   = "k8s-worker-node"
 
   vpc_id           = module.vpc.vpc_id
+  vpc_cidr_block   = module.vpc.vpc_cidr_block
   public_subnet_id = module.public_subnet.public_subnet_id
 
   # Make sure you already generated an SSH in the specified path using this command:

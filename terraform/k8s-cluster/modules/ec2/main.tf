@@ -1,6 +1,10 @@
-resource "aws_security_group" "ec2_security_group" {
-  name        = var.ec2_security_group_name
-  description = var.ec2_security_group_description
+data "external" "get_my_public_ip" {
+  program = ["bash", "-c", "curl -s 'https://api.ipify.org?format=json'"]
+}
+
+resource "aws_security_group" "control_plane_sg" {
+  name        = "k8s-control-plane-sg"
+  description = "K8s Control Plane Firewall"
 
   lifecycle {
     create_before_destroy = true
@@ -10,14 +14,14 @@ resource "aws_security_group" "ec2_security_group" {
 
   # Control Plane inbound traffic
   dynamic "ingress" {
-    for_each = var.ec2_security_group_ingress_ports
+    for_each = var.control_plane_sg_ports
     iterator = port
     content {
       description = port.key
-      from_port   = lookup(var.ec2_security_group_ingress_ports, port.key)
-      to_port     = lookup(var.ec2_security_group_ingress_ports, port.key)
+      from_port   = lookup(var.control_plane_sg_ports, port.key)
+      to_port     = lookup(var.control_plane_sg_ports, port.key)
       protocol    = "tcp"
-      cidr_blocks = [var.ec2_public_internet]
+      cidr_blocks = [var.vpc_cidr_block]
     }
   }
 
@@ -26,7 +30,15 @@ resource "aws_security_group" "ec2_security_group" {
     from_port   = 2379
     to_port     = 2380
     protocol    = "tcp"
-    cidr_blocks = [var.ec2_public_internet]
+    cidr_blocks = [var.vpc_cidr_block]
+  }
+
+  ingress {
+    description = "Public Inbound Traffic for my IP only"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = [format("%s/%s", data.external.get_my_public_ip.result.ip, "32")]
   }
 
   # Control Plane outbound traffic
@@ -39,7 +51,60 @@ resource "aws_security_group" "ec2_security_group" {
   }
 
   tags = {
-    Name = var.ec2_security_group_name
+    Name = "k8s-control-plane-sg"
+  }
+}
+
+resource "aws_security_group" "worker_node_sg" {
+  name        = "k8s-worker-node-sg"
+  description = "K9s Worker Node Firewall"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  vpc_id = var.vpc_id
+
+  # Worker Node inbound traffic
+  dynamic "ingress" {
+    for_each = var.worker_node_sg_ports
+    iterator = port
+    content {
+      description = port.key
+      from_port   = lookup(var.worker_node_sg_ports, port.key)
+      to_port     = lookup(var.worker_node_sg_ports, port.key)
+      protocol    = "tcp"
+      cidr_blocks = [var.vpc_cidr_block]
+    }
+  }
+
+  ingress {
+    description = "NodePort Services"
+    from_port   = 30000
+    to_port     = 32767
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr_block]
+  }
+
+  ingress {
+    description = "Public Inbound Traffic for my IP only"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = [format("%s/%s", data.external.get_my_public_ip.result.ip, "32")]
+  }
+
+  # Control Plane outbound traffic
+  egress {
+    description = "Public Outbound Traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = [var.ec2_public_internet]
+  }
+
+  tags = {
+    Name = "k8s-worker-node-sg"
   }
 }
 
@@ -84,7 +149,7 @@ resource "aws_instance" "control_plane" {
   instance_type = var.control_plane_shape
 
   subnet_id                   = var.public_subnet_id
-  vpc_security_group_ids      = [aws_security_group.ec2_security_group.id]
+  vpc_security_group_ids      = [aws_security_group.control_plane_sg.id]
   associate_public_ip_address = true
 
   key_name = aws_key_pair.ec2_key_pair.key_name
@@ -100,7 +165,7 @@ resource "aws_instance" "worker_nodes" {
   instance_type = var.worker_node_shape
 
   subnet_id                   = var.public_subnet_id
-  vpc_security_group_ids      = [aws_security_group.ec2_security_group.id]
+  vpc_security_group_ids      = [aws_security_group.worker_node_sg.id]
   associate_public_ip_address = true
 
   key_name = aws_key_pair.ec2_key_pair.key_name
