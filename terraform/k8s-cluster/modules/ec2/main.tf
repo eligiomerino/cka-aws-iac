@@ -14,12 +14,12 @@ resource "aws_security_group" "control_plane_sg" {
 
   # Control Plane inbound traffic
   dynamic "ingress" {
-    for_each = var.control_plane_sg_ports
+    for_each = var.control_plane_ports
     iterator = port
     content {
       description = port.key
-      from_port   = lookup(var.control_plane_sg_ports, port.key)
-      to_port     = lookup(var.control_plane_sg_ports, port.key)
+      from_port   = lookup(var.control_plane_ports, port.key)
+      to_port     = lookup(var.control_plane_ports, port.key)
       protocol    = "tcp"
       cidr_blocks = [var.vpc_cidr_block]
     }
@@ -67,12 +67,12 @@ resource "aws_security_group" "worker_node_sg" {
 
   # Worker Node inbound traffic
   dynamic "ingress" {
-    for_each = var.worker_node_sg_ports
+    for_each = var.worker_node_ports
     iterator = port
     content {
       description = port.key
-      from_port   = lookup(var.worker_node_sg_ports, port.key)
-      to_port     = lookup(var.worker_node_sg_ports, port.key)
+      from_port   = lookup(var.worker_node_ports, port.key)
+      to_port     = lookup(var.worker_node_ports, port.key)
       protocol    = "tcp"
       cidr_blocks = [var.vpc_cidr_block]
     }
@@ -154,6 +154,8 @@ resource "aws_instance" "control_plane" {
 
   key_name = aws_key_pair.ec2_key_pair.key_name
 
+  user_data = file("../scripts/cloud-init-k8s-common.yaml")
+
   tags = {
     Name = var.control_plane_name
   }
@@ -169,6 +171,8 @@ resource "aws_instance" "worker_nodes" {
   associate_public_ip_address = true
 
   key_name = aws_key_pair.ec2_key_pair.key_name
+
+  user_data = file("../scripts/cloud-init-k8s-common.yaml")
 
   tags = {
     Name = var.worker_node_name

@@ -16,7 +16,7 @@ variable "worker_node_name" {
   default     = "k8s machine"
 }
 
-variable "control_plane_sg_ports" {
+variable "control_plane_ports" {
   description = "Inboud Traffic in Control Plane"
   default = {
     "Kubernetes API server"   = "6443"
@@ -26,7 +26,7 @@ variable "control_plane_sg_ports" {
   }
 }
 
-variable "worker_node_sg_ports" {
+variable "worker_node_ports" {
   description = "Inboud Traffic traffic in Worker Node"
   default = {
     "Kubelet API" = "10250"

@@ -1,0 +1,102 @@
+#cloud-config
+#
+# Configure the common requirements for K8s instances (Control Plane and Worker Nodes)
+#
+groups:
+  - ubuntu: [root,sys]
+  - sysadmin
+
+users:
+  - default
+  - name: sysadmin
+    gecos: SysAdmin
+    shell: /bin/bash
+    primary_group: sysadmin
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    groups: sudo
+    lock_passwd: false
+    ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDSWnX5da4bRHnSrI9AgY+6bpHetp8Acc8YuKjNwBpTPdqYROtLlCQNYxan4nkTnD9f1fzLqBt+Ti1y39sslCkGe5rjkCHzuDtHmWiqKIXKcS5wF88EZUz6dR8Joi6Bdb8bBjSTrzhFsHouWXFOlJ5VtOpah3Ung8wQ+paPDs9oxBGL1yLxYV1HZ2apXlCdI5lW7Qm1Sz5gy1WXy2NjrVWDfjAfyfV/UGA4Mlg0LjI6Vox6XTK5/fQ9Jx5StBEishDw7vwJyITaB/ptw3YKAC8m2rXJzWd9MsN+t5+79S7f2P8k1iIFwudZWu7iZAbDLkVbayRdnoIFYZOf2yW7yOBWRB9/QC4B3evZJLCR01Fr+7pUkLi1ZhIphKaA6yw1aJr3RAEyAZ0dGVzBOMyIpOxjdEMvFaNV98k37aLn/EIYLqPIT9S+OoDlhTaDhvzrij6SMehqTGyNWvFNq6fBSKHDWiDfStZROjkuPrPkHCF/elPk58GWNQ3l0znb7/nuOyN+g4Y0E5bYZW/2SWTMQ/uZtSfGKGXbv82ginK7SX/QKTnywq1id4FSScGTEz6+B+Z1p1OSCjeq8st984TKJrKlNtyJA9d+/mOJ18S1Gc6luV+eDdzw1u/sLsz29CCKW46PblPl6NV6OiZubs9jezt8qX1g7gz9IXpvHYk5woYC1Q== kyloren@inbitame.com
+
+write_files:
+  - path: /etc/ssh/sshd_config
+    content: |
+      Port 7022
+      Protocol 2
+      HostKey /etc/ssh/ssh_host_rsa_key
+      HostKey /etc/ssh/ssh_host_dsa_key
+      HostKey /etc/ssh/ssh_host_ecdsa_key
+      HostKey /etc/ssh/ssh_host_ed25519_key
+      UsePrivilegeSeparation yes
+      KeyRegenerationInterval 3600
+      ServerKeyBits 1024
+      SyslogFacility AUTH
+      LogLevel INFO
+      LoginGraceTime 120
+      PermitRootLogin no
+      StrictModes yes
+      RSAAuthentication yes
+      PubkeyAuthentication yes
+      IgnoreRhosts yes
+      RhostsRSAAuthentication no
+      HostbasedAuthentication no
+      PermitEmptyPasswords no
+      ChallengeResponseAuthentication no
+      X11Forwarding yes
+      X11DisplayOffset 10
+      PrintMotd no
+      PrintLastLog yes
+      TCPKeepAlive yes
+      AcceptEnv LANG LC_*
+      Subsystem sftp /usr/lib/openssh/sftp-server
+      UsePAM yes
+      AllowUsers sysadmin
+
+  - path: /etc/modules-load.d/k8s.conf
+    content: |
+      overlay
+      br_netfilter
+
+  - path: /etc/sysctl.d/k8s.conf
+    content: |
+      net.bridge.bridge-nf-call-iptables  = 1
+      net.bridge.bridge-nf-call-ip6tables = 1
+      net.ipv4.ip_forward                 = 1
+
+# You can refer to 'cat /var/log/cloud-init-output.log' file to troubleshoot command(s) execution
+runcmd:
+  - echo "*** Running K8s common configuration commands..."
+  - restart ssh
+  - apt-get update
+  - apt-get upgrade -y
+  - apt-get dist-upgrade -y
+  - swapoff -a
+  - sed -ri '/\sswap\s/s/^#?/#/' /etc/fstab
+  - cat /proc/swaps
+  - modprobe overlay
+  - modprobe br_netfilter
+  - sysctl --system
+  - echo "*** Checking that 'br_netfilter' and 'overlay' modules are loaded..."
+  - lsmod | grep br_netfilter
+  - lsmod | grep overlay
+  - sysctl net.bridge.bridge-nf-call-iptables net.bridge.bridge-nf-call-ip6tables net.ipv4.ip_forward
+  - echo "*** Installing containerd, kuebelet, kubeadm and kubectl..."
+  - sudo apt-get install -y containerd apt-transport-https ca-certificates curl
+  - mkdir -p /etc/containerd
+  - mkdir -m 755 /etc/apt/keyrings
+  - containerd config default > /etc/containerd/config.toml
+  - sed -i 's/SystemdCgroup \= false/SystemdCgroup \= true/g' /etc/containerd/config.toml
+  - systemctl enable containerd
+  - systemctl restart containerd
+  - systemctl status containerd
+  - curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+  - echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /' > /etc/apt/sources.list.d/kubernetes.list
+  - apt-get update
+  - export k8sVersion="1.28.1-1.1" 
+  - echo "*** Installing K8s common components fixed to v${k8sVersion}" && apt-get install -y kubelet=${k8sVersion} kubeadm=${k8sVersion} kubectl=${k8sVersion}
+  - echo "*** Pinning K8s common components version..."
+  - apt-mark hold kubelet kubeadm kubectl
+  - echo "*** K8s common components installed!"
+  - containerd --version && kubelet --version && kubeadm version && kubectl version
+  - echo "*** K8s common components configuration completed!"
+  
