@@ -27,9 +27,11 @@ module "ec2" {
 
   # 2vCPUs, 2GB RAM
   control_plane_shape = "t3.small"
+  control_plane_count = 1
 
   # 2vCPUs, 4GB RAM
   worker_node_shape = "t3.medium"
+  worker_node_count = 2
 
   control_plane_name = "k8s-control-plane"
   worker_node_name   = "k8s-worker-node"

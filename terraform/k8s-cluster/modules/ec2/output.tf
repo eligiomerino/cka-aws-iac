@@ -19,10 +19,10 @@ output "ec2_ami_id" {
 
 output "control_plane_ip" {
   description = "Control Plane IP"
-  value       = ["${aws_instance.control_plane.*.public_ip}"]
+  value       = aws_instance.control_plane
 }
 
 output "worker_node_ip" {
   description = "Worker Nodes IPs"
-  value       = ["${aws_instance.worker_nodes.*.public_ip}"]
+  value       = aws_instance.worker_nodes
 }

@@ -39,10 +39,22 @@ variable "control_plane_shape" {
   default     = "t2.micro"
 }
 
+variable "control_plane_count" {
+  description = "Number of Control Plane machines"
+  type        = number
+  default     = 1
+}
+
 variable "worker_node_shape" {
   description = "EC2 instance type for Worker Node"
   type        = string
   default     = "t2.micro"
+}
+
+variable "worker_node_count" {
+  description = "Number of Worker Node machines"
+  type        = number
+  default     = 2
 }
 
 variable "ec2_instance_count" {

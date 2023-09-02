@@ -1,6 +1,7 @@
 # Ignore directories from this project
 .terraform
 .ssh
+.aws
 
 # Ignore files from this project
 *.tfstate

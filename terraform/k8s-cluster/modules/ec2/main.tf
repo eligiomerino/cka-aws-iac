@@ -145,7 +145,7 @@ data "aws_ami" "ubuntu_server" {
 
 resource "aws_instance" "control_plane" {
   ami           = data.aws_ami.ubuntu_server.id
-  count         = 1
+  count         = var.control_plane_count
   instance_type = var.control_plane_shape
 
   subnet_id                   = var.public_subnet_id
@@ -154,7 +154,7 @@ resource "aws_instance" "control_plane" {
 
   key_name = aws_key_pair.ec2_key_pair.key_name
 
-  user_data = file("../scripts/cloud-init-k8s-common.yaml")
+  user_data = file("../scripts/cloudinit-k8s-common-components.yaml")
 
   tags = {
     Name = var.control_plane_name
@@ -163,7 +163,7 @@ resource "aws_instance" "control_plane" {
 
 resource "aws_instance" "worker_nodes" {
   ami           = data.aws_ami.ubuntu_server.id
-  count         = 2
+  count         = var.worker_node_count
   instance_type = var.worker_node_shape
 
   subnet_id                   = var.public_subnet_id
@@ -172,7 +172,7 @@ resource "aws_instance" "worker_nodes" {
 
   key_name = aws_key_pair.ec2_key_pair.key_name
 
-  user_data = file("../scripts/cloud-init-k8s-common.yaml")
+  user_data = file("../scripts/cloudinit-k8s-common-components.yaml")
 
   tags = {
     Name = var.worker_node_name

@@ -7,14 +7,17 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.0"
+      version = "~> 5.10"
     }
   }
+  required_version = "~> 1.5"
 }
 
 # Configure the AWS Provider
 provider "aws" {
-  profile = var.profile
+  shared_credentials_files = ["../../../.aws/credentials"]
+  shared_config_files      = ["../../../.aws/config"]
+  profile                  = var.profile
 
   default_tags {
     tags = {
