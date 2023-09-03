@@ -1,0 +1,88 @@
+#
+# Configures Control Plane, Worker Nodes and CNI Wiring
+#
+
+# Configure Control Plane
+- hosts: 
+    control_plane
+  tasks:
+    - name: "Wait for compute instances to complete setup"
+      ansible.builtin.wait_for_connection:
+        delay: 60
+        timeout: 300
+    - name: "Initialize Control Plane"
+      ansible.builtin.command: kubeadm init
+      register: kubeadm_config
+
+    - name: "Make directory for 'kube-config' into user's home directory"
+      ansible.builtin.command: "mkdir -p /home/sysadmin/.kube"
+
+    - name: "Copy 'kube-config' to user's home directory "
+      ansible.builtin.command: "cp /etc/kubernetes/admin.conf /home/sysadmin/.kube/config"
+
+    - name: "Update 'kube-config' ownership"
+      ansible.builtin.command: "chown sysadmin: -R /home/sysadmin"
+
+    - name: "Add WeaveNet CNI"
+      ansible.builtin.command: "runuser -l sysadmin -c 'kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml'"
+      register: control_plane_cni
+
+    - name: "Get 'kube-system' status"      
+      ansible.builtin.command: "runuser -l sysadmin -c 'kubectl get pod -n kube-system -o wide'"
+      register: kube_system_check_config
+    - debug:
+        var=kube_system_check_config.stdout_lines
+
+    - name: "Generate join command"
+      ansible.builtin.command: "runuser -l sysadmin -c 'kubeadm token create --print-join-command'"
+      register: cluster_join_command
+
+    - name: "Get join command for Worker Node(s)"
+      add_host:
+        name: "WORKER_NODE"
+        JOIN_CLUSTER_COMMAND: "{{ cluster_join_command.stdout }}"
+
+# Configure Worker Nodes
+- hosts: 
+    worker_node
+  tasks:
+    - name: "Wait for Control Plane components to complete start-up"
+      ansible.builtin.wait_for_connection:
+        delay: 60
+        timeout: 300
+
+    - name: "Add Worker Node(s) to Control Plane"
+      ansible.builtin.command: "{{ hostvars['WORKER_NODE']['JOIN_CLUSTER_COMMAND'] }}"
+
+# Verify clsuter CNI connection from Control Plane
+- hosts: 
+    control_plane
+  tasks:
+    - name: "Wait for Worker Node(s) to complete Control Plane addition"
+      ansible.builtin.wait_for_connection:
+        delay: 60
+        timeout: 300
+
+    - name: "Get Control Plane pod name"
+      become_user: sysadmin
+      shell: "kubectl get node -o wide | grep 'control-plane' | awk '{ print $6 }'"
+      register: control_plane_pod_name
+
+    - name: "Get CNI pod name in Control Plane"
+      become_user: sysadmin
+      shell: "kubectl get pod -n kube-system -o wide | grep weave | grep {{ control_plane_pod_name.stdout }} | awk '{ print $1 }'"
+      register: cni_pod_name
+
+    - name: "Get CNI status for Control Plane"
+      become_user: sysadmin
+      shell: "kubectl exec {{ cni_pod_name.stdout }} -n kube-system -c weave -- /home/weave/weave --local status"
+      register: cni_status
+    - debug:
+        var=cni_status.stdout_lines
+
+    - name: "Get Control Plane status"
+      become_user: sysadmin
+      shell: "kubectl get node -o wide | sort -r -k3"
+      register: control_plane_check_config
+    - debug:
+        var=control_plane_check_config.stdout_lines

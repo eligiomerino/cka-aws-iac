@@ -34,6 +34,22 @@ resource "aws_security_group" "control_plane_sg" {
   }
 
   ingress {
+    description = "WeaveNet CNI TCP"
+    from_port   = 6783
+    to_port     = 6783
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr_block]
+  }
+
+  ingress {
+    description = "WeaveNet CNI UDP"
+    from_port   = 6783
+    to_port     = 6784
+    protocol    = "udp"
+    cidr_blocks = [var.vpc_cidr_block]
+  }
+
+  ingress {
     description = "Public Inbound Traffic for my IP only"
     from_port   = 0
     to_port     = 0
@@ -83,6 +99,22 @@ resource "aws_security_group" "worker_node_sg" {
     from_port   = 30000
     to_port     = 32767
     protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr_block]
+  }
+
+  ingress {
+    description = "WeaveNet CNI TCP"
+    from_port   = 6783
+    to_port     = 6783
+    protocol    = "tcp"
+    cidr_blocks = [var.vpc_cidr_block]
+  }
+
+  ingress {
+    description = "WeaveNet CNI UDP"
+    from_port   = 6783
+    to_port     = 6784
+    protocol    = "udp"
     cidr_blocks = [var.vpc_cidr_block]
   }
 
