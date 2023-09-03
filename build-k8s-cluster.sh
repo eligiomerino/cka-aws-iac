@@ -2,7 +2,7 @@
 
 SSH_KEY_FILE=".ssh/k8s-ec2-key"
 USER_NAME="sysadmin"
-K8S_BACKEND_DIR="terraform/k8s-cluster/backend"
+K8S_BACKEND_DIR="terraform/backend"
 
 start=$SECONDS
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-K8S_BACKEND_DIR="terraform/k8s-cluster/backend"
+K8S_BACKEND_DIR="terraform/backend"
 
 start=$SECONDS
 
