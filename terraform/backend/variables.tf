@@ -1,9 +1,3 @@
-variable "profile" {
-  description = "AWS Profile For Terraform"
-  type        = string
-  default     = "terraform"
-}
-
 variable "ec2_ssh_key_name" {
   description = "SSH Key Name"
   type        = string

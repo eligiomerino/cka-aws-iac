@@ -16,13 +16,8 @@ variable "subnet_cidr_block" {
   default     = "10.0.1.0/24"
 }
 
-variable "subnet_availability_zone" {
-  description = "Public Subnet AZ"
-  type        = string
-  default     = "us-west-1a"
-}
-
 variable "vpc_id" {
   description = "VPC ID"
   type        = string
 }
+
