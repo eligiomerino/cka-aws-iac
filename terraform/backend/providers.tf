@@ -20,8 +20,9 @@ provider "aws" {
 
   default_tags {
     tags = {
+      terraform   = "true"
       environment = "sandbox"
-      name        = "cka-training-cluster"
+      project     = "cka-training-cluster"
     }
   }
 }
