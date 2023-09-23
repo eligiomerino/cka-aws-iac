@@ -186,7 +186,7 @@ resource "aws_instance" "control_plane" {
 
   key_name = aws_key_pair.ec2_key_pair.key_name
 
-  user_data = file("../scripts/cloudinit-k8s-common-components.yaml")
+  user_data = file("./scripts/cloudinit-k8s-common-components.yaml")
 
   tags = {
     Name = var.control_plane_name
@@ -204,7 +204,7 @@ resource "aws_instance" "worker_nodes" {
 
   key_name = aws_key_pair.ec2_key_pair.key_name
 
-  user_data = file("../scripts/cloudinit-k8s-common-components.yaml")
+  user_data = file("./scripts/cloudinit-k8s-common-components.yaml")
 
   tags = {
     Name = var.worker_node_name

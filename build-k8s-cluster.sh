@@ -2,7 +2,7 @@
 
 SSH_KEY_FILE=".ssh/k8s-ec2-key"
 USER_NAME="sysadmin"
-K8S_BACKEND_DIR="terraform/backend"
+K8S_BACKEND_DIR="terraform"
 
 start=$SECONDS
 
@@ -29,8 +29,6 @@ if [ "$?" -eq 0 ]; then
         echo "$ip:$ANSIBLE_PORT" >> ansible/inventory
     done < <(printf '%s\n' "$CONTROL_PLANE_IPS")
 
-    #echo -e "\n" >> ansible/inventory
-
     echo "[worker_node]" >> ansible/inventory
     while IFS= read -r ip
     do
@@ -55,6 +53,12 @@ else
     exit 97
 fi
 
+if [ "$?" -eq 0 ]; then
+    echo "[ERROR] Could not build K8s cluster."
+    exit 1
+fi
+
 echo
 echo -e "\nElapsed time = $SECONDS seconds."
 echo
+

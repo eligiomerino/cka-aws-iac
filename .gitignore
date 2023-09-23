@@ -10,4 +10,5 @@
 *.tfvars
 *.tfvars.json
 .terraform.*
+*.out
 

@@ -1,21 +1,45 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.10"
+    }
+  }
+  required_version = "~> 1.5"
+}
+
+# Configure the AWS Provider
+provider "aws" {
+  shared_credentials_files = ["../.aws/credentials"]
+  shared_config_files      = ["../.aws/config"]
+
+  default_tags {
+    tags = {
+      terraform   = "true"
+      environment = "sandbox"
+      project     = "cka-training-cluster"
+    }
+  }
+}
+
 module "vpc" {
-  source = "../modules/vpc"
+  source = "./modules/vpc"
 }
 
 module "public_subnet" {
-  source = "../modules/public-subnet"
+  source = "./modules/public-subnet"
 
   vpc_id = module.vpc.vpc_id
 }
 
 module "internet_gateway" {
-  source = "../modules/internet-gateway"
+  source = "./modules/internet-gateway"
 
   vpc_id = module.vpc.vpc_id
 }
 
 module "route_table" {
-  source = "../modules/route-table"
+  source = "./modules/route-table"
 
   vpc_id              = module.vpc.vpc_id
   internet_gateway_id = module.internet_gateway.internet_gateway_id
@@ -23,7 +47,7 @@ module "route_table" {
 }
 
 module "ec2" {
-  source = "../modules/ec2"
+  source = "./modules/ec2"
 
   # 2vCPUs, 2GB RAM
   control_plane_shape = "t3.small"
