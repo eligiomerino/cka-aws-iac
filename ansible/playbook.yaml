@@ -102,3 +102,13 @@
         apt-get install -y helm
         helm version
         echo "*** Helm installed!"
+
+# Install Nginx Ingress controller on the Control Plane machine
+- hosts: 
+    control_plane
+  tasks:
+    - name: "Installing Nginx Ingress controller"
+      become: true
+      shell: |
+        echo "*** Installing Nginx Ingress controller through Helm ..."
+        helm upgrade --install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace ingress-nginx --create-namespace
