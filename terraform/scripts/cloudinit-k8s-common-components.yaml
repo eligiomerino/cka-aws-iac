@@ -81,7 +81,7 @@ runcmd:
   - lsmod | grep overlay
   - sysctl net.bridge.bridge-nf-call-iptables net.bridge.bridge-nf-call-ip6tables net.ipv4.ip_forward
   - echo "*** Installing containerd, kuebelet, kubeadm and kubectl..."
-  - sudo apt-get install -y containerd apt-transport-https ca-certificates curl net-tools
+  - apt-get install -y containerd apt-transport-https ca-certificates curl net-tools
   - mkdir -p /etc/containerd
   - mkdir -m 755 /etc/apt/keyrings
   - containerd config default > /etc/containerd/config.toml

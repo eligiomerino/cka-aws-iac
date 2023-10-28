@@ -87,3 +87,18 @@
       register: control_plane_check_config
     - debug:
         var=control_plane_check_config.stdout_lines
+
+# Install Helm on the Control Plane machine
+- hosts: 
+    control_plane
+  tasks:
+    - name: "Installing Helm on the Control Plane machine"
+      become: true
+      shell: |
+        echo "*** Installing Helm ..."
+        curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | tee /usr/share/keyrings/helm.gpg > /dev/null
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | tee /etc/apt/sources.list.d/helm-stable-debian.list
+        apt-get update
+        apt-get install -y helm
+        helm version
+        echo "*** Helm installed!"
