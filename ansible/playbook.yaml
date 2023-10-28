@@ -112,3 +112,6 @@
       shell: |
         echo "*** Installing Nginx Ingress controller through Helm ..."
         helm upgrade --install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace ingress-nginx --create-namespace
+        kubectl get pods --all-namespaces -l app.kubernetes.io/name=ingress-nginx
+        echo "*** Nginx Ingress controller installed!"
+
