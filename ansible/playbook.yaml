@@ -115,6 +115,13 @@
         kubectl get pods --all-namespaces -l app.kubernetes.io/name=ingress-nginx
         echo "*** Nginx Ingress controller installed!"
 
+    - name: "Cluster Info"
+      become_user: sysadmin
+      shell: "kubectl cluster-info"
+      register: cluster_info
+    - debug:
+        var=cluster_info.stdout_lines
+
     - name: "Get Nginx Ingress status"
       become_user: sysadmin
       shell: "kubectl get svc -n ingress-nginx"
