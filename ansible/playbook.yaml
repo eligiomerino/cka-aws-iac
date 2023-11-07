@@ -88,7 +88,7 @@
     - debug:
         var=control_plane_check_config.stdout_lines
 
-# Install Helm on the Control Plane machine
+# Install Helm and etcd-client on the Control Plane machine
 - hosts: 
     control_plane
   tasks:
@@ -102,6 +102,13 @@
         apt-get install -y helm
         helm version
         echo "*** Helm installed!"
+    - name: "Installing etcd-client"
+      become: true
+      shell: |
+        echo "*** Installing etcd-client ..."
+        apt install -y etcd-client
+        etcdctl --version
+        echo "*** etcd-client installed!"
 
 # Install Nginx Ingress controller on the Control Plane machine
 - hosts: 
