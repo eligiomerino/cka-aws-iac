@@ -15,8 +15,9 @@ data "aws_ami" "ubuntu_server" {
   }
   filter {
     name   = "architecture"
-    values = ["arm_64"]
+    values = ["arm64"]
   }
+  
   filter {
     name   = "platform-details"
     values = ["Linux/UNIX"]
