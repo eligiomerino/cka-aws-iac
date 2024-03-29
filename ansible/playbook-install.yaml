@@ -23,8 +23,11 @@
     - name: "Update 'kube-config' ownership"
       ansible.builtin.command: "chown sysadmin: -R /home/sysadmin"
 
+    # there is a known issue when trying to use WeaveNet CNI under arm64 architecture
+    # https://github.com/weaveworks/weave/issues/3976#issuecomment-1477494057
+    # workaround > https://github.com/weaveworks/weave/issues/3976#issuecomment-1401022783
     - name: "Add WeaveNet CNI"
-      ansible.builtin.command: "runuser -l sysadmin -c 'kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml'"
+      ansible.builtin.command: "runuser -l sysadmin -c 'kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s-1.11.yaml'"
       register: control_plane_cni
 
     - name: "Generate join command"
@@ -115,7 +118,7 @@
     control_plane
   tasks:
     - name: "Installing Nginx Ingress controller"
-      become: true
+      become: false
       shell: |
         echo "*** Installing Nginx Ingress controller through Helm ..."
         helm upgrade --install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace ingress-nginx --create-namespace

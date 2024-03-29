@@ -11,4 +11,3 @@ rm ansible/inventory
 echo
 echo -e "\nElapsed time = $SECONDS seconds."
 echo
-

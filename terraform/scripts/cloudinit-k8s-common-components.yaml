@@ -16,7 +16,7 @@ users:
     groups: sudo
     lock_passwd: false
     ssh_authorized_keys:
-      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDSWnX5da4bRHnSrI9AgY+6bpHetp8Acc8YuKjNwBpTPdqYROtLlCQNYxan4nkTnD9f1fzLqBt+Ti1y39sslCkGe5rjkCHzuDtHmWiqKIXKcS5wF88EZUz6dR8Joi6Bdb8bBjSTrzhFsHouWXFOlJ5VtOpah3Ung8wQ+paPDs9oxBGL1yLxYV1HZ2apXlCdI5lW7Qm1Sz5gy1WXy2NjrVWDfjAfyfV/UGA4Mlg0LjI6Vox6XTK5/fQ9Jx5StBEishDw7vwJyITaB/ptw3YKAC8m2rXJzWd9MsN+t5+79S7f2P8k1iIFwudZWu7iZAbDLkVbayRdnoIFYZOf2yW7yOBWRB9/QC4B3evZJLCR01Fr+7pUkLi1ZhIphKaA6yw1aJr3RAEyAZ0dGVzBOMyIpOxjdEMvFaNV98k37aLn/EIYLqPIT9S+OoDlhTaDhvzrij6SMehqTGyNWvFNq6fBSKHDWiDfStZROjkuPrPkHCF/elPk58GWNQ3l0znb7/nuOyN+g4Y0E5bYZW/2SWTMQ/uZtSfGKGXbv82ginK7SX/QKTnywq1id4FSScGTEz6+B+Z1p1OSCjeq8st984TKJrKlNtyJA9d+/mOJ18S1Gc6luV+eDdzw1u/sLsz29CCKW46PblPl6NV6OiZubs9jezt8qX1g7gz9IXpvHYk5woYC1Q== kyloren@inbitame.com
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDI7mUmoOOK4YQzbjiufZbPAjjLiAz4bXt8NL+ZlnBx3fZhUPT3Yg3SPuvSs298z1v02zT/CeSOkWX/QPA1297/GTYSnGrNvBiCAaWPqBpCIKzdWvvT8cVqWwDK2hgS8aaY69yE8UF/fjARfnyb85kmgIdiLYAi34NmYiS4x+NHrVOLTW+MDRz2yeOc80+refSZ0Rwl3sFQjDTLizhGuv8y5a2/l/DSbSFaXu/mMj+Vde1bt5/1b7beXSqXNeF6MNyiGkssQ6KhpElaUPN0OGL0T4ibJGJrzMlXKPBJMHWy0DW70D81Jqchilo35wT3Ad0NVoc9iH6s5oaBMM9mAZO4uvcQqZxog/eQSPe787zDeMfSxbDPNQOF6XRCEIRjbX3jAdlBh4P/3RLldt8dKTcPxI+Li1SBDKbEYSB1Zdfxs0kVc3+imEGgnn1wTz/bacPcqQcPKAYrX7j7WKvaP3hPjpOfh3uyik7T7w6Fslt/oEgywTaDbQYTe/JdvskDqYDpvdP9YYrr5AXn7Cgwa2Nt8cwelaLPMtpUuq2b443c2PgX5Yr2mA+Zr+pliapJGnl3+OoXmzbr/DoXSrP2hm5arsMLCQVXl+NZTcxm06DR31NaxlQV4iu5bxtoELhdtfuL8uk8U35fuINltJjd1bRk1pxxn/MTpJW/naNsXsaYdw== admin@inbitame.com
 
 write_files:
   - path: /etc/ssh/sshd_config
@@ -98,5 +98,6 @@ runcmd:
   - apt-mark hold kubelet kubeadm kubectl
   - echo "*** K8s common components installed!"
   - containerd --version && kubelet --version && kubeadm version && kubectl version
+  - echo "alias k=/usr/bin/kubectl" >> /home/sysadmin/.bashrc
+  - source /home/sysadmin/.bashrc
   - echo "*** K8s common components configuration completed!"
-  

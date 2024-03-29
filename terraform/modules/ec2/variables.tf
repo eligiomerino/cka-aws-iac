@@ -36,7 +36,7 @@ variable "worker_node_ports" {
 variable "control_plane_shape" {
   description = "EC2 instance type for Control Plane"
   type        = string
-  default     = "t2.micro"
+  default     = "t4g.micro"
 }
 
 variable "control_plane_count" {
@@ -48,7 +48,7 @@ variable "control_plane_count" {
 variable "worker_node_shape" {
   description = "EC2 instance type for Worker Node"
   type        = string
-  default     = "t2.micro"
+  default     = "t4g.micro"
 }
 
 variable "worker_node_count" {
@@ -81,7 +81,7 @@ variable "public_subnet_id" {
 variable "ec2_ssh_key_name" {
   description = "SSH Key Name"
   type        = string
-  default     = "ec2-key"
+  default     = "k8s-ec2-key"
 }
 
 variable "ec2_ssh_public_key_path" {

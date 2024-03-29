@@ -22,7 +22,10 @@ if [ "$?" -eq 0 ]; then
 
     export ANSIBLE_CONFIG=ansible/ansible.cfg
 
+    # truncates the inventory file to zero length
     : > ansible/inventory
+    
+    # writes new content to the inventory file
     echo "[control_plane]" > ansible/inventory
     while IFS= read -r ip
     do
@@ -35,8 +38,8 @@ if [ "$?" -eq 0 ]; then
         echo "$ip:$ANSIBLE_PORT" >> ansible/inventory
     done < <(printf '%s\n' "$WORKER_NODE_IPS")
 
-    echo "Giving a minute for the compute instances to become available..." 
-    sleep 60
+    echo "Giving up to 3 minutes for the compute instances to become available..." 
+    sleep 180
 
     echo "Ping checking..."
     ansible all --private-key $SSH_KEY_FILE -i ansible/inventory -u $USER_NAME -m ping

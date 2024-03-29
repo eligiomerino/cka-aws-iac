@@ -54,11 +54,11 @@ module "ec2" {
   source = "./modules/ec2"
 
   # 2vCPUs, 2GB RAM
-  control_plane_shape = "t3.small"
+  control_plane_shape = "t4g.small"
   control_plane_count = 1
 
   # 2vCPUs, 4GB RAM
-  worker_node_shape = "t3.medium"
+  worker_node_shape = "t4g.medium"
   worker_node_count = 2
 
   control_plane_name = "k8s-control-plane"
@@ -69,7 +69,7 @@ module "ec2" {
   public_subnet_id = module.public_subnet.public_subnet_id
 
   # Make sure you already generated an SSH in the specified path using this command:
-  # ssh-keygen -f k8s-ec2-key -t rsa -b 4096 -C "you@example.com" -o
+  # ssh-keygen -f ec2-key -t rsa -b 4096 -C "you@example.com" -o
   ec2_ssh_key_name        = var.ec2_ssh_key_name
   ec2_ssh_public_key_path = var.ec2_ssh_public_key_path
 }

@@ -20,3 +20,25 @@ I got this PoC written in Terraform "modules" and Asible Playbooks in order to p
 * **EC2 module:** It first gets client's public IP to later get it added in the AWS Security Group for the Kubernetes EC2 cluster. Also, it configures the SG with all mandatory ports for Kubernetes connections, service discovery, along with the ports for WeaveNet CNI plugin. I also added a data block to dynamically get the AMI for Ubuntu Server v20.x LTS using arm64 as it is cheaper than amd64 platform. In the end, this module deploys, builds and configures a Control Plane node with two Worker nodes. The build is done through a CloudInit script and the configuration is done trough Ansible.
 
 The `cloudinit-k8s-common-components.yaml` file contains all the common settings for all the Kubernetes machines. The `playbook-install.yaml` file will tell Ansible how to configure Control Plane and how to configure the Worker nodes. It will also deploys and configures the WeaveNet CNI plugin along with establishing the connection between the Worker nodes and the Contol Plane machine.
+
+### Requirements
+You will need to have the following installed/configured in your system before attempting to launch the `build-k8s-cluster.sh` script:
+* `terraform` binaries
+* `ansible` binaries
+* `aws` CLI binaries
+* `jq` utility
+* `python3` binaries linked to `python` single command:
+    ```
+    $ echo "alias python=python3" >> ~/.bashrc
+    $ source ~/.bashrc
+    $ python --version
+    Python 3.8.10
+    ```
+* Generate an SSH key pair in the `<project>/.ssh/` path using this command:
+  ```
+  $ ssh-keygen -f <project>/.ssh/ec2-key -t rsa -b 4096 -C "you@example.com" -o
+  ```
+* Have your AWS credentials stored in the `<project>/.aws/` path.
+
+    > Note: The `.aws` and `.ssh` directories are already excluded by the `.gitignore` configuration file.
+
