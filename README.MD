@@ -6,14 +6,11 @@ This is a Terraform project that builds an old-fashioned Kubernetes cluster in A
 I got this PoC written in Terraform "modules" and Asible Playbooks in order to properly structure and re-use code whenever possible. 
 
 * **VPC module:** It fully builds and configures the VPC where the EC2 machines will be deployed. 
-    ```
-    NOTE 1: The reason I am using a public subnet in this PoC is to save costs since using private subnets to deploy the Kubernetes machines would requiere to setup and configure at least one NAT Gateway, which could rocket up your AWS invoice up to the sky - whenever you have a Free Tier account or not.
-    ```
+    
+    > **NOTE 1:** The reason I am using a public subnet in this PoC is to save costs since using private subnets to deploy the Kubernetes machines would requiere to setup and configure at least one NAT Gateway, which could rocket up your AWS invoice up to the sky - whenever you have a Free Tier account or not.
 
-    ```
-    NOTE 2: As mentioned above, I am using a public subnet with and Internet Gateway and Route Tables to manage the network traffic and securing all ingress traffic to client's public IP. In a Production environment with ful public access, the configuration should go to have an Nginx Reverse Proxy Server in a public subnet and put the whole Kubernetes cluster into a private subnet - which would need an AWS NAT Gateway. AWS ASG/ALB could be also used to span multi-AZ the HA Kubernetes critical components such as the Control Plane and the ETCD server.
-    ```
-
+    > **NOTE 2:** As mentioned above, I am using a public subnet with and Internet Gateway and Route Tables to manage the network traffic and securing all ingress traffic to client's public IP. In a Production environment with ful public access, the configuration should go to have an Nginx Reverse Proxy Server in a public subnet and put the whole Kubernetes cluster into a private subnet - which would need an AWS NAT Gateway. AWS ASG/ALB could be also used to span multi-AZ the HA Kubernetes critical components such as the Control Plane and the ETCD server.
+    
 * **Public Subnet module:** Builds the subnet where the Kubernetes machines are going to be deployed.
 
 * **Internet Gateway module:** It deploys an IGW for public inboud/outbound connection from/to the public subnet.
