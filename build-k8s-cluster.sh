@@ -43,7 +43,7 @@ if [ "$?" -eq 0 ]; then
 
     if [ "$?" -eq 0 ]; then
         echo "Setting up K8s cluster..."
-        ansible-playbook ansible/playbook.yaml --private-key $SSH_KEY_FILE -i ansible/inventory -u $USER_NAME
+        ansible-playbook ansible/playbook-install.yaml --private-key $SSH_KEY_FILE -i ansible/inventory -u $USER_NAME
     else
         echo "[ERROR] K8s compute instances could be reached after 60 seconds."
         exit 98

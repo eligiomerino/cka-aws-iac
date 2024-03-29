@@ -48,7 +48,7 @@
     - name: "Add Worker Node(s) to Control Plane"
       ansible.builtin.command: "{{ hostvars['WORKER_NODE']['JOIN_CLUSTER_COMMAND'] }}"
 
-# Verify clsuter CNI connection from Control Plane
+# Verify cluster CNI connection from Control Plane
 - hosts: 
     control_plane
   tasks:

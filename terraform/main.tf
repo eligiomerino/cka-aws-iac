@@ -1,3 +1,6 @@
+/* By Eligio Merino, 2024
+   https://github.com/eligiomerino
+*/
 terraform {
   required_providers {
     aws = {
@@ -9,6 +12,7 @@ terraform {
 }
 
 # Configure the AWS Provider
+# Change the path whereever you have stored your local AWS configuration
 provider "aws" {
   shared_credentials_files = ["../.aws/credentials"]
   shared_config_files      = ["../.aws/config"]

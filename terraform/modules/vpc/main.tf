@@ -1,3 +1,6 @@
+/* By Eligio Merino, 2024
+   https://github.com/eligiomerino
+*/
 resource "aws_vpc" "vpc" {
   count                = var.vpc_should_be_created ? 1 : 0
   cidr_block           = var.vpc_cidr_block

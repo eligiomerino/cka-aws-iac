@@ -1,3 +1,6 @@
+/* By Eligio Merino, 2024
+   https://github.com/eligiomerino
+*/
 resource "aws_route_table" "route_table" {
   count  = var.route_table_should_be_created ? 1 : 0
   vpc_id = var.vpc_id

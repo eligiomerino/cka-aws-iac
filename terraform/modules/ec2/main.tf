@@ -1,5 +1,38 @@
+/* By Eligio Merino, 2024
+   https://github.com/eligiomerino
+*/
 data "external" "get_my_public_ip" {
   program = ["bash", "-c", "curl -s 'https://api.ipify.org?format=json'"]
+}
+
+data "aws_ami" "ubuntu_server" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "manifest-location"
+    values = ["amazon/ubuntu/images/hvm-ssd/ubuntu-focal-20.04-arm64-server-*"]
+  }
+  filter {
+    name   = "architecture"
+    values = ["arm_64"]
+  }
+  filter {
+    name   = "platform-details"
+    values = ["Linux/UNIX"]
+  }
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+  filter {
+    name   = "is-public"
+    values = ["true"]
+  }
 }
 
 resource "aws_security_group" "control_plane_sg" {
@@ -143,36 +176,6 @@ resource "aws_security_group" "worker_node_sg" {
 resource "aws_key_pair" "ec2_key_pair" {
   key_name   = var.ec2_ssh_key_name
   public_key = file(var.ec2_ssh_public_key_path)
-}
-
-data "aws_ami" "ubuntu_server" {
-  most_recent = true
-  owners      = ["amazon"]
-
-  filter {
-    name   = "manifest-location"
-    values = ["amazon/ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
-  }
-  filter {
-    name   = "architecture"
-    values = ["x86_64"]
-  }
-  filter {
-    name   = "platform-details"
-    values = ["Linux/UNIX"]
-  }
-  filter {
-    name   = "root-device-type"
-    values = ["ebs"]
-  }
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-  filter {
-    name   = "is-public"
-    values = ["true"]
-  }
 }
 
 resource "aws_instance" "control_plane" {

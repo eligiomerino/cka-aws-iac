@@ -1,3 +1,7 @@
+/* By Eligio Merino, 2024
+   https://github.com/eligiomerino
+*/
+
 # Fetch AZs in the Region
 data "aws_availability_zones" "azs" {}
 
