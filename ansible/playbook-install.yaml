@@ -119,11 +119,15 @@
   tasks:
     - name: "Installing Nginx Ingress controller"
       become: false
+      register: ingress_info
       shell: |
         echo "*** Installing Nginx Ingress controller through Helm ..."
         helm upgrade --install ingress-nginx ingress-nginx --repo https://kubernetes.github.io/ingress-nginx --namespace ingress-nginx --create-namespace
+        sleep 60
         kubectl get pods --all-namespaces -l app.kubernetes.io/name=ingress-nginx
         echo "*** Nginx Ingress controller installed!"
+    - debug:
+        var=ingress_info.stdout_lines
 
     - name: "Cluster Info"
       become_user: sysadmin

@@ -3,6 +3,7 @@
 SSH_KEY_FILE=".ssh/ec2-key"
 USER_NAME="sysadmin"
 K8S_BACKEND_DIR="terraform"
+WAIT_SECONDS=180
 
 start=$SECONDS
 
@@ -39,7 +40,7 @@ if [ "$?" -eq 0 ]; then
     done < <(printf '%s\n' "$WORKER_NODE_IPS")
 
     echo "Giving up to 3 minutes for the compute instances to become available..." 
-    sleep 180
+    sleep $WAIT_SECONDS
 
     echo "Ping checking..."
     ansible all --private-key $SSH_KEY_FILE -i ansible/inventory -u $USER_NAME -m ping
@@ -48,7 +49,7 @@ if [ "$?" -eq 0 ]; then
         echo "Setting up K8s cluster..."
         ansible-playbook ansible/playbook-install.yaml --private-key $SSH_KEY_FILE -i ansible/inventory -u $USER_NAME
     else
-        echo "[ERROR] K8s compute instances could be reached after 60 seconds."
+        echo "[ERROR] K8s compute instances could be reached after $WAIT_SECONDS seconds."
         exit 98
     fi
 else
@@ -56,9 +57,12 @@ else
     exit 97
 fi
 
-if [ "$?" -eq 0 ]; then
-    echo "[ERROR] Could not build K8s cluster."
-    exit 1
+if [ "$?" -gt 0 ]; then
+    ERROR_CODE="$?"
+    echo "[ERROR] [CODE=$ERROR_CODE] Ansible could not build the K8s cluster!"
+    exit $ERROR_CODE
+else
+    echo "[INFO] K8s cluster was successfully built!."
 fi
 
 echo
